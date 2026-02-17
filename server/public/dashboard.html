@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Walking Route Admin Dashboard</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            padding: 2rem;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #2c3e50;
+            color: white;
+            font-weight: 600;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        .user-id {
+            font-family: monospace;
+            color: #e67e22;
+            font-weight: bold;
+        }
+        .link-btn {
+            display: inline-block;
+            padding: 6px 12px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        .link-btn:hover {
+            background-color: #2980b9;
+        }
+        .device-info {
+            font-size: 0.85em;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <h1>📍 Route Generation Logs</h1>
+    <p>Real-time log of user sessions and generated routes.</p>
+    
+    <table id="logsTable">
+        <thead>
+            <tr>
+                <th>Time</th>
+                <th>User ID</th>
+                <th>Fingerprint (Device)</th>
+                <th>Location</th>
+                <th>Distance</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td colspan="6">Loading logs...</td></tr>
+        </tbody>
+    </table>
+
+    <script>
+        async function fetchLogs() {
+            try {
+                const response = await fetch('/api/logs');
+                const result = await response.json();
+                const logs = result.data;
+                
+                const tbody = document.querySelector('#logsTable tbody');
+                tbody.innerHTML = '';
+
+                logs.forEach(log => {
+                    const tr = document.createElement('tr');
+                    
+                    const date = new Date(log.timestamp).toLocaleString();
+                    const fingerprint = log.fingerprint ? 
+                        `${log.fingerprint.os} / ${log.fingerprint.browser} (${log.fingerprint.screen})` : 'N/A';
+                    
+                    tr.innerHTML = `
+                        <td>${date}</td>
+                        <td class="user-id" title="${log.user_id}">${log.user_id.substring(0, 8)}...</td>
+                        <td class="device-info">${fingerprint}</td>
+                        <td>${log.start_location}</td>
+                        <td>${log.distance} ${log.unit}</td>
+                        <td><a href="${log.maps_url}" target="_blank" class="link-btn">View Route ↗</a></td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (error) {
+                console.error('Error fetching logs:', error);
+                document.querySelector('#logsTable tbody').innerHTML = '<tr><td colspan="6" style="color:red">Error loading data. Ensure server is running.</td></tr>';
+            }
+        }
+
+        // Poll every 5 seconds
+        fetchLogs();
+        setInterval(fetchLogs, 5000);
+    </script>
+</body>
+</html>
