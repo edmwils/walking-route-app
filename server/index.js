@@ -11,7 +11,15 @@ app.use(cors()); // Allows all origins by default (OK for MVP)
 app.use(bodyParser.json());
 
 // Serve static files (React Frontend)
-app.use(express.static(path.join(__dirname, 'public')));
+const publicPath = path.join(__dirname, 'public');
+console.log("Serving static files from:", publicPath);
+if (fs.existsSync(publicPath)) {
+    console.log("Public folder contents:", fs.readdirSync(publicPath));
+} else {
+    console.error("❌ PUBLIC FOLDER DOES NOT EXIST at:", publicPath);
+}
+
+app.use(express.static(publicPath));
 
 // Fallback: Send index.html for any other route (React Router support)
 app.get(/(.*)/, (req, res, next) => {
