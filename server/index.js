@@ -14,7 +14,7 @@ app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Fallback: Send index.html for any other route (React Router support)
-app.get('*', (req, res, next) => {
+app.get(/(.*)/, (req, res, next) => {
     // If request is for API, skip to next handler (which will 404)
     if (req.path.startsWith('/api')) {
         return next();
