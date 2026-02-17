@@ -127,10 +127,12 @@ export const generateMapsUrl = (start, waypoints = []) => {
  * @param {Object} userSession - { userId, fingerprint }
  */
 export const logRouteToBackend = async (routeData, userSession) => {
-    // In Production (Docker): We serve frontend & backend from the same place.
-    // So we use a relative path ("") to talk to "myself".
-    // In Development: We talk to localhost:3000.
-    const API_URL = import.meta.env.DEV ? 'http://localhost:3000' : '';
+    // UNIFIED URL:
+    // We use the full Render URL for ALL Production builds (Docker, Surge, Android).
+    // This ensures mobile apps know where to send data.
+    const API_URL = import.meta.env.DEV
+        ? 'http://localhost:3000'
+        : 'https://walking-route-app-docker.onrender.com';
 
     try {
         const response = await fetch(`${API_URL}/api/log`, {

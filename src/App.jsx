@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Geolocation } from '@capacitor/geolocation';
 import './App.css'
 import { calculateLoopWaypoints, stepsToKm, generateMapsUrl, logRouteToBackend } from './utils/routeLogic'
 import { useFingerprint } from './hooks/useFingerprint'
@@ -13,27 +14,22 @@ function App() {
 
   const { userId, fingerprint } = useFingerprint();
 
-  const handleUseCurrentLocation = () => {
+  // ...
+
+  const handleUseCurrentLocation = async () => {
     setLoading(true)
     setLocationError('')
-    if (!navigator.geolocation) {
-      setLocationError('Geolocation is not supported by your browser')
-      setLoading(false)
-      return
-    }
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords
-        setStartLocation(`${latitude}, ${longitude}`)
-        setLoading(false)
-      },
-      (error) => {
-        console.error(error)
-        setLocationError('Unable to retrieve your location')
-        setLoading(false)
-      }
-    )
+    try {
+      const position = await Geolocation.getCurrentPosition();
+      const { latitude, longitude } = position.coords;
+      setStartLocation(`${latitude}, ${longitude}`);
+      setLoading(false);
+    } catch (error) {
+      console.error(error);
+      setLocationError('Unable to retrieve your location. properly');
+      setLoading(false);
+    }
   }
 
   const handleGenerateRoute = () => {

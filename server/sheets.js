@@ -2,20 +2,31 @@ const { google } = require('googleapis');
 const path = require('path');
 const fs = require('fs');
 
-// Path to the key file (User must provide this)
-const KEY_FILE_PATH = path.join(__dirname, 'credentials.json');
-
-// Spreadsheet ID (Hardcoded for simplicity)
-const SPREADSHEET_ID = '1Row6afvksoxHOQ-FCMiF-OLAb3UmIEw8thHGgLor3Fo';
+// Path to the key file (Try multiple locations for Docker/Render compatibility)
+const POSSIBLE_PATHS = [
+    path.join(__dirname, 'credentials.json'),        // Local / Docker (server/)
+    path.join(__dirname, '../credentials.json'),     // Docker Root
+    '/etc/secrets/credentials.json'                  // Render Native Secret Path
+];
 
 const authenticate = async () => {
-    if (!fs.existsSync(KEY_FILE_PATH)) {
-        console.warn("⚠️ Warning: credentials.json not found in server/. Google Sheets logging will be skipped.");
+    let keyPath = null;
+    for (const p of POSSIBLE_PATHS) {
+        if (fs.existsSync(p)) {
+            keyPath = p;
+            console.log(`✅ Found credentials at: ${keyPath}`);
+            break;
+        }
+    }
+
+    if (!keyPath) {
+        console.warn("⚠️ Warning: credentials.json not found in any standard path. Google Sheets logging will be skipped.");
+        console.warn("Checked paths:", POSSIBLE_PATHS);
         return null;
     }
 
     const auth = new google.auth.GoogleAuth({
-        keyFile: KEY_FILE_PATH,
+        keyFile: keyPath,
         scopes: ['https://www.googleapis.com/auth/spreadsheets'],
     });
 
