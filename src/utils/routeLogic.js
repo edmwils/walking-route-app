@@ -127,9 +127,10 @@ export const generateMapsUrl = (start, waypoints = []) => {
  * @param {Object} userSession - { userId, fingerprint }
  */
 export const logRouteToBackend = async (routeData, userSession) => {
-    // HARDCODED for reliability:
-    // This ensures the built frontend ALWAYS talks to the live backend.
-    const API_URL = 'https://walking-route-app.onrender.com';
+    // In Production (Docker): We serve frontend & backend from the same place.
+    // So we use a relative path ("") to talk to "myself".
+    // In Development: We talk to localhost:3000.
+    const API_URL = import.meta.env.DEV ? 'http://localhost:3000' : '';
 
     try {
         const response = await fetch(`${API_URL}/api/log`, {
