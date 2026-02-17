@@ -127,11 +127,12 @@ export const generateMapsUrl = (start, waypoints = []) => {
  * @param {Object} userSession - { userId, fingerprint }
  */
 export const logRouteToBackend = async (routeData, userSession) => {
-    // Use VITE_API_URL if set, otherwise default to localhost
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+    // HARDCODED for reliability:
+    // This ensures the built frontend ALWAYS talks to the live backend.
+    const API_URL = 'https://walking-route-app.onrender.com';
 
     try {
-        await fetch(`${API_URL}/api/log`, {
+        const response = await fetch(`${API_URL}/api/log`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

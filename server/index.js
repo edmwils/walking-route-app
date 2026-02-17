@@ -13,6 +13,8 @@ app.use(bodyParser.json());
 // Serve static files for Dashboard
 app.use('/dashboard', express.static(path.join(__dirname, 'public')));
 
+const { appendRow } = require('./sheets');
+
 // API: Log a route
 app.post('/api/log', (req, res) => {
     const { user_id, fingerprint, start_location, distance, unit, maps_url } = req.body;
@@ -22,6 +24,7 @@ app.post('/api/log', (req, res) => {
         return res.status(400).json({ error: 'Missing required fields' });
     }
 
+    // 1. Log to SQLite (Local/Ephemeral)
     const sql = `INSERT INTO logs (user_id, fingerprint, start_location, distance, unit, maps_url) VALUES (?, ?, ?, ?, ?, ?)`;
     const params = [user_id, JSON.stringify(fingerprint), start_location, distance, unit, maps_url];
 
@@ -30,6 +33,10 @@ app.post('/api/log', (req, res) => {
             console.error(err.message);
             return res.status(500).json({ error: err.message });
         }
+
+        // 2. Log to Google Sheets (Persistent)
+        appendRow({ user_id, fingerprint, start_location, distance, unit, maps_url });
+
         res.json({ message: 'Log saved', id: this.lastID });
     });
 });
