@@ -97,88 +97,99 @@ function App() {
   }
 
   return (
-    <div className="container">
-      <h1>Daily Walker</h1>
-      <p className="subtitle">Discover a new loop every time.</p>
+    <div className="app-container">
+      <header className="app-header">
+        <h1 className="app-title">Daily Loop</h1>
+      </header>
 
-      <div className="input-group">
-        <label>I want to walk</label>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <input
-            type="number"
-            value={distance}
-            onChange={(e) => setDistance(e.target.value)}
-          />
+      <main className="controls-wrapper">
+        {/* Mode & Distance Row */}
+        <div className="control-row">
+          <div className="segmented-control">
+            <button
+              className={`segment-btn ${mode === 'walking' ? 'active' : ''}`}
+              onClick={() => { setMode('walking'); if (unit === 'steps') setUnit('km'); }}
+            >
+              Walk
+            </button>
+            <button
+              className={`segment-btn ${mode === 'cycling' ? 'active' : ''}`}
+              onClick={() => { setMode('cycling'); setUnit('km'); }}
+            >
+              Cycle
+            </button>
+          </div>
         </div>
-      </div>
 
-      <div className="toggle-group" style={{ marginBottom: '10px' }}>
-        <button
-          className={`toggle-btn ${mode === 'walking' ? 'active' : ''}`}
-          onClick={() => { setMode('walking'); if (unit === 'steps') setUnit('km'); }}
-        >Walking 🚶</button>
-        <button
-          className={`toggle-btn ${mode === 'cycling' ? 'active' : ''}`}
-          onClick={() => { setMode('cycling'); setUnit('km'); }}
-        >Cycling 🚴</button>
-      </div>
+        <div className="control-row input-row">
+          <div className="input-field-group">
+            <label>Distance</label>
+            <input
+              type="number"
+              value={distance}
+              onChange={(e) => setDistance(e.target.value)}
+              placeholder="5"
+            />
+          </div>
+          <div className="unit-toggles">
+            <button
+              className={`unit-btn ${unit === 'km' ? 'active' : ''}`}
+              onClick={() => setUnit('km')}
+            >km</button>
+            <button
+              className={`unit-btn ${unit === 'miles' ? 'active' : ''}`}
+              onClick={() => setUnit('miles')}
+            >mi</button>
+            {mode === 'walking' && (
+              <button
+                className={`unit-btn ${unit === 'steps' ? 'active' : ''}`}
+                onClick={() => setUnit('steps')}
+              >steps</button>
+            )}
+          </div>
+        </div>
 
-      <div className="toggle-group">
-        <button
-          className={`toggle-btn ${unit === 'km' ? 'active' : ''}`}
-          onClick={() => setUnit('km')}
-        >km</button>
-        <button
-          className={`toggle-btn ${unit === 'miles' ? 'active' : ''}`}
-          onClick={() => setUnit('miles')}
-        >miles</button>
-        {mode === 'walking' && (
-          <button
-            className={`toggle-btn ${unit === 'steps' ? 'active' : ''}`}
-            onClick={() => setUnit('steps')}
-          >steps</button>
+        {unit === 'steps' && mode === 'walking' && (
+          <div className="control-row">
+            <div className="input-field-group">
+              <label>Height (cm)</label>
+              <input
+                type="number"
+                value={height}
+                placeholder="170"
+                onChange={(e) => setHeight(e.target.value)}
+              />
+            </div>
+          </div>
         )}
-      </div>
 
-      {unit === 'steps' && (
-        <div className="input-group animation-fade-in">
-          <label>Your Height (cm) <span style={{ fontWeight: 'normal', fontSize: '0.8em', color: '#666' }}>- for stride accuracy</span></label>
-          <input
-            type="number"
-            value={height}
-            placeholder="170"
-            onChange={(e) => setHeight(e.target.value)}
-          />
+        {/* Location Section */}
+        <div className="control-row location-row">
+          <div className="input-field-group full-width">
+            <label>Start Location</label>
+            <div className="location-input-container">
+              <input
+                type="text"
+                placeholder="Current Location or Lat, Long"
+                value={startLocation}
+                onChange={(e) => setStartLocation(e.target.value)}
+              />
+              <button
+                className="icon-btn"
+                onClick={handleUseCurrentLocation}
+                title="Use Current Location"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg>
+              </button>
+            </div>
+          </div>
         </div>
-      )}
+        {locationError && <p className="error-text">{locationError}</p>}
 
-      <div className="input-group">
-        <label>Start & End Point</label>
-        <div className="location-input-wrapper">
-          <input
-            type="text"
-            placeholder="Lat, Long or use button ->"
-            value={startLocation}
-            onChange={(e) => setStartLocation(e.target.value)}
-          />
-          <button
-            className="geo-btn"
-            onClick={handleUseCurrentLocation}
-            title="Use Current Location"
-          >
-            📍
-          </button>
-        </div>
-        {locationError && <p style={{ color: 'red', fontSize: '0.8rem' }}>{locationError}</p>}
-        <p className="helper-text">Generates a meaningful loop starting and ending here.</p>
-      </div>
-
-      <button className="action-btn" onClick={handleGenerateRoute} disabled={loading}>
-        {loading ? 'Locating...' : 'Generate Route'}
-      </button>
-
-      {/* Debug Info (Optional, verify ID creation) */}
-      {/* <p style={{fontSize: '10px', color: '#333', marginTop: '20px'}}>Session: {userId}</p> */}
+        <button className="primary-action-btn" onClick={handleGenerateRoute} disabled={loading}>
+          {loading ? 'Generating...' : 'Generate Route'}
+        </button>
+      </main>
     </div>
   )
 }
