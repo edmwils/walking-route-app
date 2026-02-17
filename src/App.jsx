@@ -8,6 +8,7 @@ function App() {
   const [distance, setDistance] = useState(5)
   const [unit, setUnit] = useState('km') // 'km', 'miles', 'steps'
   const [height, setHeight] = useState(170) // cm
+  const [mode, setMode] = useState('walking') // 'walking', 'cycling'
   const [startLocation, setStartLocation] = useState('')
   const [loading, setLoading] = useState(false)
   const [locationError, setLocationError] = useState('')
@@ -75,7 +76,7 @@ function App() {
       // We want a Loop. Start -> W1 -> W2 -> Start.
       const waypoints = calculateLoopWaypoints(startLat, startLng, distKm, seed);
 
-      const url = generateMapsUrl({ lat: startLat, lng: startLng }, waypoints);
+      const url = generateMapsUrl({ lat: startLat, lng: startLng }, waypoints, mode);
 
       // Log to Backend (Fire and Forget)
       if (userId) {
@@ -83,7 +84,8 @@ function App() {
           startLocation: startLocation,
           distance: displayDistance,
           unit: displayUnit,
-          mapsUrl: url
+          mapsUrl: url,
+          mode: mode
         }, { userId, fingerprint });
       }
 
@@ -110,6 +112,17 @@ function App() {
         </div>
       </div>
 
+      <div className="toggle-group" style={{ marginBottom: '10px' }}>
+        <button
+          className={`toggle-btn ${mode === 'walking' ? 'active' : ''}`}
+          onClick={() => { setMode('walking'); if (unit === 'steps') setUnit('km'); }}
+        >Walking 🚶</button>
+        <button
+          className={`toggle-btn ${mode === 'cycling' ? 'active' : ''}`}
+          onClick={() => { setMode('cycling'); setUnit('km'); }}
+        >Cycling 🚴</button>
+      </div>
+
       <div className="toggle-group">
         <button
           className={`toggle-btn ${unit === 'km' ? 'active' : ''}`}
@@ -119,10 +132,12 @@ function App() {
           className={`toggle-btn ${unit === 'miles' ? 'active' : ''}`}
           onClick={() => setUnit('miles')}
         >miles</button>
-        <button
-          className={`toggle-btn ${unit === 'steps' ? 'active' : ''}`}
-          onClick={() => setUnit('steps')}
-        >steps</button>
+        {mode === 'walking' && (
+          <button
+            className={`toggle-btn ${unit === 'steps' ? 'active' : ''}`}
+            onClick={() => setUnit('steps')}
+          >steps</button>
+        )}
       </div>
 
       {unit === 'steps' && (

@@ -102,13 +102,14 @@ export const stepsToKm = (steps, heightCm) => {
 };
 
 /**
- * Generates a Google Maps URL for a walking route with waypoints.
+ * Generates a Google Maps URL for a walking/cycling route with waypoints.
  * 
  * @param {Object} start - { lat, lng }
  * @param {Array} waypoints - Array of { lat, lng }
+ * @param {string} mode - 'walking' or 'bicycling'
  * @returns {string} - Google Maps URL
  */
-export const generateMapsUrl = (start, waypoints = []) => {
+export const generateMapsUrl = (start, waypoints = [], mode = 'walking') => {
     const formatCoord = (point) => `${point.lat},${point.lng}`;
     const origin = formatCoord(start); // Start and End are same
 
@@ -117,13 +118,16 @@ export const generateMapsUrl = (start, waypoints = []) => {
     // Waypoints parameter
     const waypointsStr = waypoints.map(formatCoord).join('|');
 
-    return `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}&waypoints=${waypointsStr}&travelmode=walking`;
+    // Google Maps travel modes are 'walking', 'bicycling', 'driving', 'transit'
+    const travelMode = mode === 'cycling' ? 'bicycling' : 'walking';
+
+    return `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}&waypoints=${waypointsStr}&travelmode=${travelMode}`;
 };
 
 /**
  * Logs the generated route to the backend.
  * 
- * @param {Object} routeData - { startLocation, distance, unit, mapsUrl }
+ * @param {Object} routeData - { startLocation, distance, unit, mapsUrl, mode }
  * @param {Object} userSession - { userId, fingerprint }
  */
 export const logRouteToBackend = async (routeData, userSession) => {
@@ -146,7 +150,8 @@ export const logRouteToBackend = async (routeData, userSession) => {
                 start_location: routeData.startLocation,
                 distance: routeData.distance,
                 unit: routeData.unit,
-                maps_url: routeData.mapsUrl
+                maps_url: routeData.mapsUrl,
+                mode: routeData.mode || 'walking' // Log the mode
             })
         });
         console.log("Route logged successfully to", API_URL);
