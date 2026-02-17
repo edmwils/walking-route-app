@@ -9,6 +9,9 @@ const POSSIBLE_PATHS = [
     '/etc/secrets/credentials.json'                  // Render Native Secret Path
 ];
 
+// Spreadsheet ID (Hardcoded for simplicity)
+const SPREADSHEET_ID = '1Row6afvksoxHOQ-FCMiF-OLAb3UmIEw8thHGgLor3Fo';
+
 const authenticate = async () => {
     console.log("🔍 Attempting to authenticate with Google Sheets...");
     let keyPath = null;
