@@ -10,8 +10,10 @@ const POSSIBLE_PATHS = [
 ];
 
 const authenticate = async () => {
+    console.log("🔍 Attempting to authenticate with Google Sheets...");
     let keyPath = null;
     for (const p of POSSIBLE_PATHS) {
+        console.log(`Checking path: ${p}`);
         if (fs.existsSync(p)) {
             keyPath = p;
             console.log(`✅ Found credentials at: ${keyPath}`);
@@ -20,24 +22,40 @@ const authenticate = async () => {
     }
 
     if (!keyPath) {
-        console.warn("⚠️ Warning: credentials.json not found in any standard path. Google Sheets logging will be skipped.");
-        console.warn("Checked paths:", POSSIBLE_PATHS);
+        console.error("❌ ERROR: credentials.json not found in any standard path.");
+        console.error("Checked paths:", POSSIBLE_PATHS);
+        console.error("Current Directory:", __dirname);
+        try {
+            console.error("Root Dir listing:", fs.readdirSync(path.join(__dirname, '..')));
+            console.error("Server Dir listing:", fs.readdirSync(__dirname));
+        } catch (e) { console.error("Could not list dirs:", e.message); }
         return null;
     }
 
-    const auth = new google.auth.GoogleAuth({
-        keyFile: keyPath,
-        scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-    });
-
-    return auth.getClient();
+    try {
+        const auth = new google.auth.GoogleAuth({
+            keyFile: keyPath,
+            scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+        });
+        const client = await auth.getClient();
+        console.log("✅ OAuth Client created successfully.");
+        return client;
+    } catch (e) {
+        console.error("❌ Authentication Failed:", e.message);
+        return null;
+    }
 };
 
 const appendRow = async (data) => {
+    console.log("📝 appendRow called with data:", JSON.stringify(data));
     try {
         const client = await authenticate();
-        if (!client || !SPREADSHEET_ID) {
-            if (!SPREADSHEET_ID) console.warn("⚠️ Warning: SPREADSHEET_ID not set.");
+        if (!client) {
+            console.error("❌ Aborting appendRow: No auth client.");
+            return;
+        }
+        if (!SPREADSHEET_ID) {
+            console.warn("⚠️ Warning: SPREADSHEET_ID not set.");
             return;
         }
 
@@ -54,6 +72,7 @@ const appendRow = async (data) => {
             data.maps_url
         ];
 
+        console.log("📤 Sending data to Google Sheets API...");
         await sheets.spreadsheets.values.append({
             spreadsheetId: SPREADSHEET_ID,
             range: 'Sheet1!A:G', // Appends to Sheet1
@@ -63,10 +82,13 @@ const appendRow = async (data) => {
             },
         });
 
-        console.log("✅ Logged to Google Sheets");
+        console.log("✅ SUCCESS: Logged to Google Sheets");
 
     } catch (error) {
         console.error("❌ Google Sheets Error:", error.message);
+        if (error.response) {
+            console.error("API Response:", JSON.stringify(error.response.data));
+        }
     }
 };
 
