@@ -1,0 +1,8 @@
+node_modules
+dist
+.env
+.DS_Store
+routes.db
+server/node_modules
+server/routes.db
+server/credentials.json

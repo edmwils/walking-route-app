@@ -10,8 +10,17 @@ const PORT = process.env.PORT || 3000;
 app.use(cors()); // Allows all origins by default (OK for MVP)
 app.use(bodyParser.json());
 
-// Serve static files for Dashboard
-app.use('/dashboard', express.static(path.join(__dirname, 'public')));
+// Serve static files (React Frontend)
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Fallback: Send index.html for any other route (React Router support)
+app.get('*', (req, res, next) => {
+    // If request is for API, skip to next handler (which will 404)
+    if (req.path.startsWith('/api')) {
+        return next();
+    }
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 const { appendRow } = require('./sheets');
 
