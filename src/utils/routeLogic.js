@@ -45,13 +45,19 @@ export const calculateCoordinate = (lat, lng, distanceKm, bearingDegrees) => {
  * @param {string|number} seed - Random seed for variety
  * @returns {Array} [ {lat, lng}, {lat, lng} ]
  */
-export const calculateLoopWaypoints = (startLat, startLng, totalDistanceKm, seed) => {
+export const calculateLoopWaypoints = (startLat, startLng, totalDistanceKm, seed, mode = 'walking') => {
     // Tortuosity factor: Roads aren't straight. 
     // 1.3 is a standard urban correction factor.
     // However, Google Maps optimizes for shortest path, so it might "shortcut" our triangle.
     // To ensure we get CLOSE to the target, we should be slightly aggressive.
-    // Let's use 4.0 divider.
-    const sideLength = totalDistanceKm / 4.0;
+
+    // Tuning for Cycling:
+    // Cycling routes follow roads which are less direct and often require larger detours/U-turns.
+    // If we put points too far out, Google Maps creates massive loops (2x distance).
+    // We "tighten the leash" for cycling by dividing by a larger number.
+    const divider = mode === 'cycling' ? 6.0 : 4.0;
+
+    const sideLength = totalDistanceKm / divider;
 
     // Seeded Random function
     const seededRandom = (s) => {

@@ -85,7 +85,8 @@ function App() {
 
       // Generate Loop Waypoints
       // We want a Loop. Start -> W1 -> W2 -> Start.
-      const waypoints = calculateLoopWaypoints(startLat, startLng, distKm, seed);
+      // Pass 'mode' to tune the logic (Cycling needs tighter bounds)
+      const waypoints = calculateLoopWaypoints(startLat, startLng, distKm, seed, mode);
 
       const url = generateMapsUrl({ lat: startLat, lng: startLng }, waypoints, mode);
 
