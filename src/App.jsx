@@ -10,12 +10,16 @@ function App() {
   const [height, setHeight] = useState(170) // cm
   const [mode, setMode] = useState('walking') // 'walking', 'cycling'
   const [startLocation, setStartLocation] = useState('')
+  const [isUsingCurrentLocation, setIsUsingCurrentLocation] = useState(false) // Track if using GPS
   const [loading, setLoading] = useState(false)
   const [locationError, setLocationError] = useState('')
 
   const { userId, fingerprint } = useFingerprint();
 
-  // ...
+  // Auto-fetch location on mount
+  useEffect(() => {
+    handleUseCurrentLocation();
+  }, []);
 
   const handleUseCurrentLocation = async () => {
     setLoading(true)
@@ -25,12 +29,19 @@ function App() {
       const position = await Geolocation.getCurrentPosition();
       const { latitude, longitude } = position.coords;
       setStartLocation(`${latitude}, ${longitude}`);
+      setIsUsingCurrentLocation(true);
       setLoading(false);
     } catch (error) {
       console.error(error);
-      setLocationError('Unable to retrieve your location. properly');
+      setLocationError('Could not auto-locate. Please enter location.');
+      setIsUsingCurrentLocation(false);
       setLoading(false);
     }
+  }
+
+  const handleManualInput = (e) => {
+    setStartLocation(e.target.value);
+    setIsUsingCurrentLocation(false);
   }
 
   const handleGenerateRoute = () => {
@@ -163,25 +174,44 @@ function App() {
           </div>
         )}
 
-        {/* Location Section */}
+        {/* Location Section - Simplified */}
         <div className="control-row location-row">
           <div className="input-field-group full-width">
-            <label>Start Location</label>
-            <div className="location-input-container">
-              <input
-                type="text"
-                placeholder="Current Location or Lat, Long"
-                value={startLocation}
-                onChange={(e) => setStartLocation(e.target.value)}
-              />
-              <button
-                className="icon-btn"
-                onClick={handleUseCurrentLocation}
-                title="Use Current Location"
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg>
-              </button>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+              <label>Start Location</label>
+              {isUsingCurrentLocation && (
+                <button
+                  className="text-link-btn"
+                  onClick={() => setIsUsingCurrentLocation(false)}
+                >
+                  Change
+                </button>
+              )}
             </div>
+
+            {isUsingCurrentLocation ? (
+              <div className="location-badge">
+                <span className="location-dot"></span>
+                <span className="location-text">Current Location</span>
+              </div>
+            ) : (
+              <div className="location-input-container">
+                <input
+                  type="text"
+                  placeholder="Current Location or Lat, Long"
+                  value={startLocation}
+                  onChange={handleManualInput}
+                  autoFocus
+                />
+                <button
+                  className="icon-btn"
+                  onClick={handleUseCurrentLocation}
+                  title="Use Current Location"
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg>
+                </button>
+              </div>
+            )}
           </div>
         </div>
         {locationError && <p className="error-text">{locationError}</p>}

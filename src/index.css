@@ -214,3 +214,44 @@ input:focus {
 svg {
     opacity: 0.8;
 }
+
+/* Location Badge Logic */
+.location-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: rgba(30, 215, 96, 0.1);
+    /* Subtle Green Tint */
+    padding: 12px 16px;
+    border-radius: var(--border-radius);
+    border: 1px solid rgba(30, 215, 96, 0.2);
+}
+
+.location-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #1ed760;
+    /* Spotify Greenish */
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(30, 215, 96, 0.4);
+}
+
+.location-text {
+    font-size: 14px;
+    color: #1ed760;
+    font-weight: 500;
+}
+
+.text-link-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 12px;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 0;
+}
+
+.text-link-btn:hover {
+    color: var(--text-primary);
+}
