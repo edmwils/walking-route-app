@@ -9,6 +9,12 @@
     --font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
 body {
     margin: 0;
     display: flex;
@@ -20,6 +26,8 @@ body {
     color: var(--text-primary);
     font-family: var(--font-family);
     -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    /* Prevent horizontal scroll */
 }
 
 .app-container {
@@ -29,6 +37,8 @@ body {
     display: flex;
     flex-direction: column;
     gap: 30px;
+    overflow-x: hidden;
+    /* Double safety */
 }
 
 .app-header {

@@ -170,6 +170,11 @@ function App() {
                 placeholder="170"
                 onChange={(e) => setHeight(e.target.value)}
               />
+              {height > 0 && (
+                <span style={{ fontSize: '11px', color: '#666', marginTop: '4px', marginLeft: '2px' }}>
+                  ≈ {Math.round(height * 0.415)}cm stride length
+                </span>
+              )}
             </div>
           </div>
         )}
@@ -178,7 +183,7 @@ function App() {
         <div className="control-row location-row">
           <div className="input-field-group full-width">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-              <label>Start Location</label>
+              <label>Loop Start & End Point</label>
               {isUsingCurrentLocation && (
                 <button
                   className="text-link-btn"
